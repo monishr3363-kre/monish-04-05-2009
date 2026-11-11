@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <string.h>
+
+int main()
+{
+    int choice, roll, marks[5], total, i;
+    float average;
+    char name[50], grade[5], result[10];
+    int entered = 0, calculated = 0;
+
+    while(1)
+    {
+        printf("\nSTUDENT MARKS MANAGEMENT SYSTEM\n");
+        printf("--------------------------------\n");
+        printf("1. Enter Student Details\n");
+        printf("2. Calculate Result\n");
+        printf("3. Display Result\n");
+        printf("4. Exit\n");
+
+        printf("\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice)
+        {
+            case 1:
+                printf("Enter Roll Number: ");
+                scanf("%d", &roll);
+
+                printf("Enter Student Name: ");
+                scanf(" %[^\n]", name);
+
+                for(i = 0; i < 5; i++)
+                {
+                    printf("Enter Subject %d Mark: ", i + 1);
+                    scanf("%d", &marks[i]);
+                }
+
+                entered = 1;
+                calculated = 0;
+                break;
+
+            case 2:
+                if(entered == 0)
+                {
+                    printf("Enter student details first!\n");
+                    break;
+                }
+
+                total = 0;
+
+                for(i = 0; i < 5; i++)
+                {
+                    total = total + marks[i];
+                }
+
+                average = total / 5.0;
+
+                if(average >= 90)
+                    strcpy(grade, "A");
+                else if(average >= 80)
+                    strcpy(grade, "B");
+                else if(average >= 70)
+                    strcpy(grade, "C");
+                else if(average >= 60)
+                    strcpy(grade, "D");
+                else if(average >= 50)
+                    strcpy(grade, "E");
+                else
+                    strcpy(grade, "F");
+
+                if(average >= 50)
+                    strcpy(result, "PASS");
+                else
+                    strcpy(result, "FAIL");
+
+                calculated = 1;
+
+                printf("\nResult Calculated Successfully!\n");
+                break;
+
+            case 3:
+                if(calculated == 0)
+                {
+                    printf("Calculate result first!\n");
+                    break;
+                }
+
+                printf("\nSTUDENT RESULT\n");
+                printf("----------------\n");
+                printf("Roll Number : %d\n", roll);
+                printf("Name        : %s\n", name);
+                printf("Total       : %d\n", total);
+                printf("Average     : %.2f\n", average);
+                printf("Grade       : %s\n", grade);
+                printf("Result      : %s\n", result);
+                break;
+
+            case 4:
+                printf("\nThank You!\n");
+                return 0;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+    }
+
+    return 0;
+}
