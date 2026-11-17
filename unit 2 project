@@ -1,0 +1,127 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 50
+
+struct Book
+{
+    int id;
+    char title[50];
+    char author[50];
+};
+
+void addBook(struct Book b[], int *n)
+{
+    static int id = 101;
+
+    if (*n >= MAX)
+    {
+        printf("\nLibrary is Full!\n");
+        return;
+    }
+
+    b[*n].id = id++;
+
+    printf("\nEnter Book Title: ");
+    fgets(b[*n].title, 50, stdin);
+    b[*n].title[strcspn(b[*n].title, "\n")] = '\0';
+
+    printf("Enter Author Name: ");
+    fgets(b[*n].author, 50, stdin);
+    b[*n].author[strcspn(b[*n].author, "\n")] = '\0';
+
+    (*n)++;
+
+    printf("\nBook Added Successfully!\n");
+}
+
+void displayBooks(struct Book b[], int n)
+{
+    int i;
+
+    if (n == 0)
+    {
+        printf("\nNo Books Available!\n");
+        return;
+    }
+
+    printf("\n===== LIBRARY BOOK DETAILS =====\n");
+
+    for (i = 0; i < n; i++)
+    {
+        printf("\nBook ID: %d\n", b[i].id);
+        printf("Title  : %s\n", b[i].title);
+        printf("Author : %s\n", b[i].author);
+    }
+}
+
+void searchBook(struct Book b[], int n)
+{
+    int id, i, found = 0;
+
+    printf("\nEnter Book ID to Search: ");
+    scanf("%d", &id);
+    getchar();
+
+    for (i = 0; i < n; i++)
+    {
+        if (b[i].id == id)
+        {
+            printf("\nBook Found!\n");
+            printf("Book ID: %d\n", b[i].id);
+            printf("Title  : %s\n", b[i].title);
+            printf("Author : %s\n", b[i].author);
+            found = 1;
+            break;
+        }
+    }
+
+    if (found == 0)
+    {
+        printf("\nBook Not Found!\n");
+    }
+}
+
+int main()
+{
+    struct Book b[MAX];
+    int n = 0, choice;
+
+    do
+    {
+        printf("\n===== LIBRARY MANAGEMENT SYSTEM =====\n");
+        printf("1. Add Book\n");
+        printf("2. Display Books\n");
+        printf("3. Search Book\n");
+        printf("4. Exit\n");
+
+        printf("\nEnter Your Choice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice)
+        {
+            case 1:
+                addBook(b, &n);
+                break;
+
+            case 2:
+                displayBooks(b, n);
+                break;
+
+            case 3:
+                searchBook(b, n);
+                break;
+
+            case 4:
+                printf("\nThank You!\n");
+                break;
+
+            default:
+                printf("\nInvalid Choice!\n");
+        }
+
+    } while (choice != 4);
+
+    return 0;
+}
