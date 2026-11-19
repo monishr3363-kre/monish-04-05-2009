@@ -1,0 +1,343 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Student
+{
+    int roll;
+    char name[50];
+    char department[30];
+    float marks;
+};
+
+struct Student *students = NULL;
+int count = 0;
+
+// Function declarations
+void loadData();
+void saveData();
+void addStudent();
+void displayStudents();
+void searchStudent();
+void updateStudent();
+void deleteStudent();
+
+// Load records from file
+void loadData()
+{
+    FILE *fp;
+    struct Student s;
+
+    fp = fopen("students.dat", "rb");
+
+    if (fp == NULL)
+        return;
+
+    while (fread(&s, sizeof(struct Student), 1, fp) == 1)
+    {
+        struct Student *temp;
+
+        temp = realloc(students,
+                       (count + 1) * sizeof(struct Student));
+
+        if (temp == NULL)
+        {
+            printf("Memory allocation failed!\n");
+            fclose(fp);
+            free(students);
+            exit(1);
+        }
+
+        students = temp;
+        students[count] = s;
+        count++;
+    }
+
+    fclose(fp);
+}
+
+// Save records to file
+void saveData()
+{
+    FILE *fp;
+
+    fp = fopen("students.dat", "wb");
+
+    if (fp == NULL)
+    {
+        printf("File opening error!\n");
+        return;
+    }
+
+    if (count > 0)
+    {
+        fwrite(students, sizeof(struct Student), count, fp);
+    }
+
+    fclose(fp);
+}
+
+// Add new student
+void addStudent()
+{
+    struct Student *temp;
+    int roll, i;
+
+    printf("\nEnter Roll Number: ");
+    if (scanf("%d", &roll) != 1)
+    {
+        printf("Invalid input!\n");
+        while (getchar() != '\n');
+        return;
+    }
+
+    for (i = 0; i < count; i++)
+    {
+        if (students[i].roll == roll)
+        {
+            printf("Roll number already exists!\n");
+            return;
+        }
+    }
+
+    temp = realloc(students,
+                   (count + 1) * sizeof(struct Student));
+
+    if (temp == NULL)
+    {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+
+    students = temp;
+    students[count].roll = roll;
+
+    printf("Enter Student Name: ");
+    scanf(" %49[^\n]", students[count].name);
+
+    printf("Enter Department: ");
+    scanf(" %29[^\n]", students[count].department);
+
+    printf("Enter Marks: ");
+    if (scanf("%f", &students[count].marks) != 1)
+    {
+        printf("Invalid marks!\n");
+        while (getchar() != '\n');
+        return;
+    }
+
+    count++;
+    saveData();
+
+    printf("\nStudent Added Successfully!\n");
+}
+
+// Display all students
+void displayStudents()
+{
+    int i;
+
+    if (count == 0)
+    {
+        printf("\nNo Student Records Found!\n");
+        return;
+    }
+
+    printf("\n------ STUDENT RECORDS ------\n");
+
+    for (i = 0; i < count; i++)
+    {
+        printf("\nRoll Number : %d", students[i].roll);
+        printf("\nName        : %s", students[i].name);
+        printf("\nDepartment  : %s", students[i].department);
+        printf("\nMarks       : %.2f\n", students[i].marks);
+    }
+}
+
+// Search student
+void searchStudent()
+{
+    int roll, i;
+
+    printf("\nEnter Roll Number to Search: ");
+    if (scanf("%d", &roll) != 1)
+    {
+        printf("Invalid input!\n");
+        while (getchar() != '\n');
+        return;
+    }
+
+    for (i = 0; i < count; i++)
+    {
+        if (students[i].roll == roll)
+        {
+            printf("\nStudent Found!\n");
+            printf("Roll Number : %d\n", students[i].roll);
+            printf("Name        : %s\n", students[i].name);
+            printf("Department  : %s\n", students[i].department);
+            printf("Marks       : %.2f\n", students[i].marks);
+            return;
+        }
+    }
+
+    printf("\nStudent Not Found!\n");
+}
+
+// Update student
+void updateStudent()
+{
+    int roll, i;
+
+    printf("\nEnter Roll Number to Update: ");
+    if (scanf("%d", &roll) != 1)
+    {
+        printf("Invalid input!\n");
+        while (getchar() != '\n');
+        return;
+    }
+
+    for (i = 0; i < count; i++)
+    {
+        if (students[i].roll == roll)
+        {
+            printf("Enter New Name: ");
+            scanf(" %49[^\n]", students[i].name);
+
+            printf("Enter New Department: ");
+            scanf(" %29[^\n]", students[i].department);
+
+            printf("Enter New Marks: ");
+            if (scanf("%f", &students[i].marks) != 1)
+            {
+                printf("Invalid marks!\n");
+                while (getchar() != '\n');
+                return;
+            }
+
+            saveData();
+
+            printf("\nRecord Updated Successfully!\n");
+            return;
+        }
+    }
+
+    printf("\nStudent Not Found!\n");
+}
+
+// Delete student
+void deleteStudent()
+{
+    int roll, i, j;
+
+    printf("\nEnter Roll Number to Delete: ");
+    if (scanf("%d", &roll) != 1)
+    {
+        printf("Invalid input!\n");
+        while (getchar() != '\n');
+        return;
+    }
+
+    for (i = 0; i < count; i++)
+    {
+        if (students[i].roll == roll)
+        {
+            for (j = i; j < count - 1; j++)
+            {
+                students[j] = students[j + 1];
+            }
+
+            count--;
+
+            if (count == 0)
+            {
+                free(students);
+                students = NULL;
+            }
+            else
+            {
+                struct Student *temp;
+
+                temp = realloc(students,
+                               count * sizeof(struct Student));
+
+                if (temp != NULL)
+                    students = temp;
+            }
+
+            saveData();
+
+            printf("\nStudent Deleted Successfully!\n");
+            return;
+        }
+    }
+
+    printf("\nStudent Not Found!\n");
+}
+
+// Main function
+int main()
+{
+    int choice;
+
+    loadData();
+
+    do
+    {
+        printf("\n================================");
+        printf("\n   STUDENT RECORD MANAGEMENT");
+        printf("\n================================");
+        printf("\n1. Add Student");
+        printf("\n2. Display Students");
+        printf("\n3. Search Student");
+        printf("\n4. Update Student");
+        printf("\n5. Delete Student");
+        printf("\n6. Exit");
+        printf("\n================================");
+
+        printf("\nEnter Your Choice: ");
+
+        if (scanf("%d", &choice) != 1)
+        {
+            printf("\nInvalid choice! Enter a number.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+
+        switch (choice)
+        {
+            case 1:
+                addStudent();
+                break;
+
+            case 2:
+                displayStudents();
+                break;
+
+            case 3:
+                searchStudent();
+                break;
+
+            case 4:
+                updateStudent();
+                break;
+
+            case 5:
+                deleteStudent();
+                break;
+
+            case 6:
+                saveData();
+                free(students);
+                students = NULL;
+
+                printf("\nThank You! Program Exited Successfully.\n");
+                break;
+
+            default:
+                printf("\nInvalid Choice! Please Try Again.\n");
+        }
+
+    } while (choice != 6);
+
+    return 0;
+}
